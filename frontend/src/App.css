@@ -1,0 +1,136 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+}
+
+#root {
+  width: 100%;
+}
+h1 {
+  text-align: center;
+  margin: 15px 0;
+  font-size: 28px;
+}
+
+h2 {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 20px;
+}
+
+.train-card {
+  width: auto;
+  margin: 0;
+  padding: 12px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.train-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 17px;
+}
+.train-card p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.status-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.status-badge.running {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.delayed {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+.dashboard-stats {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 10px auto;
+}
+
+.stat-card {
+  width: 140px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.stat-card h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.stat-card p {
+  margin: 10px 0 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.map-container {
+  position: relative;
+  width: 90%;
+  max-width: 1100px;
+  margin: 20px auto;
+}
+
+.map-legend {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.map-legend h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.map-legend p {
+  margin: 5px 0;
+}
+.train-grid {
+  width: 90%;
+  max-width: 1100px;
+  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+@media (max-width: 768px) {
+  .map-container {
+    width: 95%;
+  }
+
+  .train-grid {
+    width: 95%;
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-stats {
+    flex-wrap: wrap;
+  }
+}
