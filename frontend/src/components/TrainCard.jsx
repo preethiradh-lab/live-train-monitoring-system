@@ -1,6 +1,12 @@
+import { useNavigate } from 'react-router-dom'
+
 function TrainCard({ train }) {
+    const navigate = useNavigate()
   return (
-    <div className="train-card">
+   <div
+  className="train-card"
+  onClick={() => navigate(`/train/${train.train_number}`)}
+>
       <h3>
         {train.train_number} - {train.train_name}
       </h3>
