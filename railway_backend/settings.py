@@ -134,3 +134,25 @@ MAILERS = {
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+
+    'loggers': {
+        'trains': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+    },
+}
+
+REDIS_HOST = "localhost"
+REDIS_PORT = 6379
