@@ -15,7 +15,12 @@ def save_live_train(train_number, data):
 def get_live_train(train_number):
     key = f"train:{train_number}:live"
 
-    return redis_client.get(key)
+    cached_data = redis_client.get(key)
+
+    if cached_data is None:
+        return None
+
+    return json.loads(cached_data)
 
 def refresh_live_train_cache(data):
     save_live_train(data.train_number, data)
