@@ -156,3 +156,5 @@ LOGGING = {
 
 REDIS_HOST = "localhost"
 REDIS_PORT = 6379
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
