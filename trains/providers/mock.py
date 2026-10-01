@@ -22,19 +22,15 @@ class MockProvider(LiveTrainProvider):
 
      if len(stops) < 2:
         return None
-
+     
      segment_index = (step - 1) // 10
-     progress = Decimal((step - 1) % 10 + 1) / Decimal("10")
+     total_segments = len(stops) - 1
+     total_steps = total_segments * 10
 
-     if segment_index >= len(stops) - 1:
-        final_station = stops[-1].station
+     step_in_journey = ((step - 1) % total_steps) + 1
 
-        return (
-            final_station.latitude,
-            final_station.longitude,
-            final_station.code,
-            None,
-        )
+     segment_index = (step_in_journey - 1) // 10
+     progress = Decimal((step_in_journey - 1) % 10 + 1) / Decimal("10")
 
      current_stop = stops[segment_index]
      next_stop = stops[segment_index + 1]
@@ -57,7 +53,7 @@ class MockProvider(LiveTrainProvider):
         longitude,
         current_station.code,
         next_station.code,
-    )
+      )
 
     def get_live_trains(self):
      runs = TrainRun.objects.filter(
