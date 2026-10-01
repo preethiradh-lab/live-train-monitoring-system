@@ -13,47 +13,98 @@ class MockProvider(LiveTrainProvider):
 
      return redis_client.incr(key)
 
-    def get_live_trains(self):
-        runs = TrainRun.objects.filter(
-            status__in=['RUNNING', 'DELAYED']
-        ).select_related('train')
+    def _get_route_position(self, train, step):
+     stops = list(
+        train.stops
+        .select_related('station')
+        .order_by('sequence')
+      )
 
-        data = []
+     if len(stops) < 2:
+        return None
 
-        for run in runs:
-            position = run.positions.first()
+     segment_index = (step - 1) // 10
+     progress = Decimal((step - 1) % 10 + 1) / Decimal("10")
 
-            if position:
-              step = self._get_simulation_step(run.train.train_number)
+     if segment_index >= len(stops) - 1:
+        final_station = stops[-1].station
 
-              simulated_latitude = position.latitude + (Decimal(step) * Decimal("0.0001"))
-              simulated_longitude = position.longitude + (Decimal(step) * Decimal("0.0002"))
-               
-        data.append(
-    LiveTrainData(
-        train_number=run.train.train_number,
-        train_name=run.train.name,
-        status=run.status,
-        latitude=simulated_latitude,
-        longitude=simulated_longitude,
-        speed=position.speed,
-        bearing=position.bearing,
-        delay_minutes=position.delay_minutes,
-        current_station=(
-            position.current_stop.station.code
-            if position.current_stop
-            else None
-        ),
-        next_station=(
-            position.next_stop.station.code
-            if position.next_stop
-            else None
-        ),
-        recorded_at=timezone.now(),
+        return (
+            final_station.latitude,
+            final_station.longitude,
+            final_station.code,
+            None,
+        )
+
+     current_stop = stops[segment_index]
+     next_stop = stops[segment_index + 1]
+
+     current_station = current_stop.station
+     next_station = next_stop.station
+
+     latitude = (
+        current_station.latitude
+        + (next_station.latitude - current_station.latitude) * progress
+     )
+
+     longitude = (
+        current_station.longitude
+        + (next_station.longitude - current_station.longitude) * progress
+     )
+
+     return (
+        latitude,
+        longitude,
+        current_station.code,
+        next_station.code,
     )
-)
 
-        return data
+    def get_live_trains(self):
+     runs = TrainRun.objects.filter(
+        status__in=['RUNNING', 'DELAYED']
+     ).select_related('train')
+
+     data = []
+
+     for run in runs:
+        position = run.positions.first()
+
+        if position:
+            step = self._get_simulation_step(
+                run.train.train_number
+            )
+
+            route_position = self._get_route_position(
+                run.train,
+                step
+            )
+
+            if route_position is None:
+                continue
+
+            (
+                simulated_latitude,
+                simulated_longitude,
+                current_station,
+                next_station,
+            ) = route_position
+
+        data.append(
+            LiveTrainData(
+                train_number=run.train.train_number,
+                train_name=run.train.name,
+                status=run.status,
+                latitude=simulated_latitude,
+                longitude=simulated_longitude,
+                speed=position.speed,
+                bearing=position.bearing,
+                delay_minutes=position.delay_minutes,
+                current_station=current_station,
+                next_station=next_station,
+                recorded_at=timezone.now(),
+            )
+        )
+     return data
 
     def get_train_live_position(self, train_number):
         runs = TrainRun.objects.filter(
