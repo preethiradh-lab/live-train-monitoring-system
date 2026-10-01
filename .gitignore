@@ -21,3 +21,5 @@ Thumbs.db
 
 # Media uploaded during local development
 media/
+
+celerybeat-schedule

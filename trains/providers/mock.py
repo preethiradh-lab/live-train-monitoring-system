@@ -1,9 +1,17 @@
 from trains.models import TrainRun
 from .base import LiveTrainProvider
 from .schemas import LiveTrainData
+from trains.redis_client import redis_client
+from decimal import Decimal
+from django.utils import timezone
 
 
 class MockProvider(LiveTrainProvider):
+
+    def _get_simulation_step(self, train_number):
+     key = f"train:{train_number}:simulation_step"
+
+     return redis_client.incr(key)
 
     def get_live_trains(self):
         runs = TrainRun.objects.filter(
@@ -16,13 +24,18 @@ class MockProvider(LiveTrainProvider):
             position = run.positions.first()
 
             if position:
-               data.append(
+              step = self._get_simulation_step(run.train.train_number)
+
+              simulated_latitude = position.latitude + (Decimal(step) * Decimal("0.0001"))
+              simulated_longitude = position.longitude + (Decimal(step) * Decimal("0.0002"))
+               
+        data.append(
     LiveTrainData(
         train_number=run.train.train_number,
         train_name=run.train.name,
         status=run.status,
-        latitude=position.latitude,
-        longitude=position.longitude,
+        latitude=simulated_latitude,
+        longitude=simulated_longitude,
         speed=position.speed,
         bearing=position.bearing,
         delay_minutes=position.delay_minutes,
@@ -36,7 +49,7 @@ class MockProvider(LiveTrainProvider):
             if position.next_stop
             else None
         ),
-        recorded_at=position.recorded_at,
+        recorded_at=timezone.now(),
     )
 )
 
@@ -57,6 +70,7 @@ class MockProvider(LiveTrainProvider):
 
         if not position:
             return None
+
 
         return LiveTrainData(
     train_number=run.train.train_number,
