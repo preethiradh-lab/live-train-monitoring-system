@@ -4,6 +4,7 @@ from trains.providers.factory import get_live_train_provider
 from trains.live_train_cache import refresh_all_live_trains_cache
 
 
+
 class Command(BaseCommand):
     help = "Refresh live train data in Redis"
 
@@ -18,4 +19,4 @@ class Command(BaseCommand):
             self.style.SUCCESS(
                 f"Successfully refreshed {len(data)} live trains."
             )
-        )
+         )

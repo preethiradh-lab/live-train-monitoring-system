@@ -2,17 +2,21 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from trains.providers.railradar import RailRadarProvider
+from trains.live_train_cache import refresh_live_train_cache
 
 
 class Command(BaseCommand):
     help = "Fetch one train's live data from RailRadar once"
-
     def add_arguments(self, parser):
-        parser.add_argument(
-            "train_number",
-            help="Train number to query, for example 66613",
-        )
-
+      parser.add_argument(
+        "train_number",
+        help="Train number to query, for example 66613",
+      )
+      parser.add_argument(
+        "--cache",
+        action="store_true",
+        help="Save the returned train data to Redis",
+       )
     def handle(self, *args, **options):
         train_number = options["train_number"]
 
@@ -39,3 +43,8 @@ class Command(BaseCommand):
         self.stdout.write(f"Delay: {data.delay_minutes} minutes")
         self.stdout.write(f"Current station: {data.current_station}")
         self.stdout.write(f"Next station: {data.next_station}")
+        if options["cache"]:
+         refresh_live_train_cache(data)
+         self.stdout.write(
+         self.style.SUCCESS("Train data saved to Redis.")
+         )
