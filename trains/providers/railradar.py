@@ -74,6 +74,29 @@ class RailRadarProvider(LiveTrainProvider):
             next_station=next_station_code,
             recorded_at=timezone.now(),
         )
-
     def get_live_trains(self):
-        return []
+        url = f"{self.BASE_URL}/stations/CBE/live"
+
+        response = requests.get(
+         url,
+         headers=self._get_headers(),
+         params={"hours": 4},
+         timeout=15,
+         )
+        response.raise_for_status()
+
+        response_data = response.json()
+        trains = response_data["data"]["trains"]
+        live_trains = []
+        for item in trains:
+         train_number = item["train"]["number"]
+         try:
+            live_train = self.get_train_live_position(train_number)
+
+            if live_train is not None and live_train.status == "RUNNING":
+             live_trains.append(live_train)
+
+         except requests.RequestException:
+              continue
+
+        return live_trains

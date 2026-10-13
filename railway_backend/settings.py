@@ -27,6 +27,11 @@ RAILRADAR_API_KEY = os.getenv('RAILRADAR_API_KEY')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 
+LIVE_TRAIN_PROVIDER = os.getenv(
+    "LIVE_TRAIN_PROVIDER",
+    "mock"
+).lower()
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
