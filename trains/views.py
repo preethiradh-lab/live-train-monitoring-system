@@ -11,20 +11,29 @@ from .live_train_cache import (get_live_train,
                                refresh_live_train_cache,
                                get_all_live_trains,
                                refresh_all_live_trains_cache)
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
 def train_live_position(request, train_number):
     try:
-        cached_data = get_live_train(train_number)
-
+        provider_name = settings.LIVE_TRAIN_PROVIDER
+        cached_data = get_live_train(
+        train_number,
+        provider_name=provider_name,
+        )
         if cached_data:
             return Response(cached_data)
 
-        provider = get_live_train_provider()
-
-        data = provider.get_train_live_position(train_number)
+        if settings.LIVE_TRAIN_PROVIDER == "mock":
+           provider = get_live_train_provider()
+           data = provider.get_train_live_position(train_number)
+        else:
+           return Response(
+           {"message": "Live train data is not currently cached."},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+          )
 
         if data is None:
             return Response(
@@ -32,7 +41,10 @@ def train_live_position(request, train_number):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        refresh_live_train_cache(data)
+        refresh_live_train_cache(
+                  data,
+              provider_name=provider_name,
+              )
 
         serializer = LiveTrainDataSerializer(data)
 
@@ -51,14 +63,20 @@ def train_live_position(request, train_number):
 @api_view(['GET'])
 def live_trains(request):
     try:
+        provider_name = settings.LIVE_TRAIN_PROVIDER
         cached_data = get_all_live_trains()
 
         if cached_data:
             return Response(cached_data)
+        if settings.LIVE_TRAIN_PROVIDER == "mock":
+           provider = get_live_train_provider()
+           data = provider.get_live_trains()
+        else:
+         return Response(
+          {"message": "Live train data is not currently cached."},
+          status=status.HTTP_503_SERVICE_UNAVAILABLE,
+           )
 
-        provider = get_live_train_provider()
-
-        data = provider.get_live_trains()
 
         if not data:
             return Response(
@@ -66,7 +84,10 @@ def live_trains(request):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        refresh_all_live_trains_cache(data)
+        refresh_all_live_trains_cache(
+          data,
+         provider_name=provider_name,
+         )
 
         serializer = LiveTrainDataSerializer(data, many=True)
 

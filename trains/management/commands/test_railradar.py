@@ -44,7 +44,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Current station: {data.current_station}")
         self.stdout.write(f"Next station: {data.next_station}")
         if options["cache"]:
-         refresh_live_train_cache(data)
+         refresh_live_train_cache(data,provider_name="railradar")
          self.stdout.write(
          self.style.SUCCESS("Train data saved to Redis.")
          )
