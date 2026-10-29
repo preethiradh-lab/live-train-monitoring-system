@@ -6,25 +6,41 @@ import { Link } from 'react-router-dom'
 function Dashboard() {
   const [trains, setTrains] = useState([])
 
-  useEffect(() => {
-    const fetchTrains = () => {
-      console.log("Fetching train data...")
+useEffect(() => {
+  const fetchTrains = async () => {
+    try {
+      console.log("Fetching train data...");
 
-      fetch('http://127.0.0.1:8000/api/trains/live/')
-        .then(response => response.json())
-        .then(data => {
-          setTrains(data)
-        })
+      const response = await fetch(
+        'http://127.0.0.1:8000/api/trains/live/'
+      );
+
+      if (!response.ok) {
+        console.error("Train API error:", response.status);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (Array.isArray(data)) {
+        setTrains(data);
+      } else {
+        console.error("Expected an array of trains:", data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch trains:", error);
     }
+  };
 
-    fetchTrains()
+  fetchTrains();
 
-    const interval = setInterval(fetchTrains, 10000)
+  const interval = setInterval(fetchTrains, 10000);
 
-    return () => {
-      clearInterval(interval)
-    }
-  }, [])
+  return () => {
+    clearInterval(interval);
+  };
+}, []);
+
 
   const activeTrainCount = trains.length
 
@@ -81,16 +97,11 @@ function Dashboard() {
         </div>
       </div>
        <div className="map-header">
-  <h2>Live Train Map</h2>
-  <span>● LIVE</span>
-</div>
-
-      {trains.length > 0 && (
-        <LiveMap trains={trains} />
-      )}
-
+         <h2>Live Train Map</h2>
+          <span>● LIVE</span>
+      </div>
+      <LiveMap trains={trains} />
       <h2>Active Trains</h2>
-
       <div className="train-grid">
         {trains.map(train => (
           <TrainCard

@@ -1,6 +1,5 @@
 
 from django.core.management.base import BaseCommand, CommandError
-
 from trains.providers.railradar import RailRadarProvider
 from trains.live_train_cache import refresh_live_train_cache
 

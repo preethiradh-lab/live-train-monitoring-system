@@ -87,10 +87,15 @@ WSGI_APPLICATION = 'railway_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'live_train_db',
+        'USER': 'postgres',
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 
@@ -169,9 +174,10 @@ REDIS_PORT = 6379
 
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 
+
 CELERY_BEAT_SCHEDULE = {
-    'refresh-live-trains-every-20-seconds': {
-        'task': 'trains.tasks.refresh_live_trains',
+    'refresh-railradar-train-12675-every-20-seconds': {
+        'task': 'trains.tasks.refresh_railradar_train_12675',
         'schedule': 20.0,
     },
 }

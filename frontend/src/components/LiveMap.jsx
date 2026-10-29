@@ -20,18 +20,27 @@ function getMarkerColor(delay) {
 }
 
 function LiveMap({ trains }) {
+console.log(
+  "Train coordinates:",
+  trains.map(train => ({
+    number: train.train_number,
+    latitude: train.latitude,
+    longitude: train.longitude
+  }))
+);
+
   return (
    <div className="map-container">
     <MapContainer
-      center={[11.0168, 76.9558]}
-      zoom={12}
+      center={[10.93909, 78.16572]}
+      zoom={10}
       style={{ height: '50vh', width: '100%' }}
-    >
+      >
+
       <TileLayer
         attribution='&copy; OpenStreetMap contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-
       {trains.map(train => (
         <CircleMarker
           key={train.train_number}
